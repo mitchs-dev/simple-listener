@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io"
 	"net/http"
@@ -9,13 +10,41 @@ import (
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 	"github.com/t6x-io/go/mods/loggingFormatter"
+	"gopkg.in/yaml.v2"
 )
 
-var appPort = 8753
-var endpoint = "/mail/delivery"
-var TZ = "America/New_York"
+var configFile string
+var appPort int
+var endpoint string
+var TZ string
+
+type Config struct {
+	AppPort  int    `yaml:"appPort"`
+	EndPoint string `yaml:"endpoint"`
+	TimeZone string `yaml:"timeZone"`
+}
+
+var c Config
+
+func (configItem *Config) GetConfig(configFile string) *Config {
+	configData, err := os.ReadFile(configFile)
+	if err != nil {
+		log.Fatal("Error in reading config file", err)
+	}
+	err = yaml.Unmarshal(configData, configItem)
+	if err != nil {
+		log.Fatal("Error in unmarshalling config file", err)
+	}
+	return configItem
+}
 
 func main() {
+	flag.StringVar(&configFile, "config", "config.yaml", "config file")
+	flag.Parse()
+	c.GetConfig(configFile)
+	appPort = c.AppPort
+	endpoint = c.EndPoint
+	TZ = c.TimeZone
 	log.SetFormatter(&loggingFormatter.JSONFormatter{
 		Timezone: TZ,
 		Prefix:   "smpl-l-",
