@@ -8,8 +8,8 @@ import (
 	"os"
 
 	"github.com/gorilla/mux"
+	"github.com/mitchs-dev/library-go/loggingFormatter"
 	log "github.com/sirupsen/logrus"
-	"github.com/t6x-io/go/mods/loggingFormatter"
 	"gopkg.in/yaml.v2"
 )
 
@@ -79,6 +79,7 @@ func Handler() {
 	myRouter.HandleFunc(endpoint, HomePage)
 
 	log.Info("Application listening on port: " + fmt.Sprint(appPort))
+	log.Info("Application endpoint: " + endpoint)
 	log.Info("Using protocol: HTTP")
 	err := http.ListenAndServe(":"+fmt.Sprint(appPort), myRouter)
 	if err != nil {
